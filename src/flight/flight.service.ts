@@ -17,11 +17,11 @@ export class FlightService {
   }
 
   async findAll(): Promise<IFlight[]> {
-    return this.model.find();
+    return this.model.find().populate('passengers');
   }
 
   async findOne(id: string): Promise<IFlight> {
-    return this.model.findById(id);
+    return this.model.findById(id).populate('passengers');
   }
 
   async update(id: string, flightDTO: FlightDTO): Promise<IFlight> {
@@ -34,22 +34,14 @@ export class FlightService {
   }
 
   async addPassenger(flightId: string, passengerId: string): Promise<IFlight> {
-    try {
-      return this.model
-        .findByIdAndUpdate(
-          flightId,
-          {
-            $addToSet: { passengers: passengerId },
-          },
-          { new: true },
-        )
-        .populate('passengers');
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        'Internal server Error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.model
+      .findByIdAndUpdate(
+        flightId,
+        {
+          $addToSet: { passengers: passengerId },
+        },
+        { new: true },
+      )
+      .populate('passengers');
   }
 }
